@@ -50,7 +50,6 @@ Gopkg.lock
 
 # External dependencies managed by Go Modules
 go.sum
-go.mod
 
 # Built binary files
 /app
