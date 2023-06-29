@@ -6,7 +6,7 @@ on:
       - "v*.*.*"
 
 jobs:
-  build-windows-amd64:
+  build-and-release:
     permissions:
       contents: write
     name: Build Windows amd64
