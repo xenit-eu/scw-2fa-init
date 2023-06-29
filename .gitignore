@@ -1,0 +1,81 @@
+# Compiled Object files, Static and Dynamic libs (Shared Objects)
+*.o
+*.a
+*.so
+
+# Folders
+_obj
+_test
+
+# Architecture specific extensions/prefixes
+*.[568vq]
+[568vq].out
+
+*.cgo1.go
+*.cgo2.c
+_cgo_defun.c
+_cgo_gotypes.go
+_cgo_export.*
+
+_testmain.go
+
+*.exe
+*.test
+*.prof
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Dependency directories (remove the comment below if you want to check in your dependencies)
+#vendor/
+
+# IDE files
+.idea/
+
+# Log files
+*.log
+
+# Binary files produced by running go build
+/bin/
+
+# All test coverage files
+coverage.txt
+
+# All performance profile files
+profile.out
+
+# External dependencies managed by dep
+Gopkg.lock
+/vendor/
+
+# External dependencies managed by Go Modules
+go.sum
+go.mod
+
+# Built binary files
+/app
+
+# Eclipse files
+.classpath
+.project
+.settings/**
+
+# Sublime Text files
+*.sublime-workspace
+
+# VSCode files
+.vscode
+*.code-workspace
+
+# JetBrains IDE
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# Ignore all other IDEs
+*.swp
+*.swo
+*~
+
+# End of .gitignore
