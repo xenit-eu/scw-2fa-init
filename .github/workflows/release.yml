@@ -10,7 +10,7 @@ jobs:
     permissions:
       contents: write
     name: Build Windows amd64
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v2
