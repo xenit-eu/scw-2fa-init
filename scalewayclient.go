@@ -12,8 +12,9 @@ import (
 )
 
 const (
-	JWT_API                 = "https://api.scaleway.com/account/v1/jwt"
-	ORGANIZATION_API        = "https://api.scaleway.com/account/v2/users/"
+	LOGIN_API               = "https://api.scaleway.com/account/v2/login"
+	ACCOUNT_USERS_API       = "https://api.scaleway.com/account/v2/users/"
+	IAM_USERS_API           = "https://api.scaleway.com/iam/v1alpha1/users/"
 	SWITCH_ORGANIZATION_API = "https://api.scaleway.com/iam-private/v1/jwts/%s/switch-organization"
 	API_KEYS_API            = "https://api.scaleway.com/iam/v1alpha1/api-keys"
 	CONTENT_TYPE            = "Content-Type"
@@ -40,10 +41,9 @@ type ApiKey struct {
 }
 
 type PostBody struct {
-	Email     string `json:"email"`
-	Password  string `json:"password"`
-	Token     string `json:"2FA_token"`
-	Renewable bool   `json:"renewable"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+	Token    string `json:"otp"`
 }
 
 func NewScalewayClient(email, password, token string) (*ScalewayClient, error) {
@@ -53,39 +53,41 @@ func NewScalewayClient(email, password, token string) (*ScalewayClient, error) {
 	}
 
 	postBody := PostBody{
-		Email:     email,
-		Password:  password,
-		Token:     token,
-		Renewable: true,
+		Email:    email,
+		Password: password,
+		Token:    token,
 	}
 	jsonBody, err := json.Marshal(postBody)
 	if err != nil {
 		return nil, err
 	}
 
-	jsonResponse, err := client.sendRequest(JWT_API, jsonBody, "", "POST")
+	jsonResponse, err := client.sendRequest(LOGIN_API, jsonBody, "", "POST")
 	if err != nil {
 		return nil, err
 	}
 
-	client.defaultOrganizationId = jsonResponse["jwt"].(map[string]interface{})["organization_id"].(string)
 	client.jti = jsonResponse["jwt"].(map[string]interface{})["jti"].(string)
-	client.issuer = jsonResponse["jwt"].(map[string]interface{})["issuer"].(string)
+	client.issuer = jsonResponse["jwt"].(map[string]interface{})["issuer_id"].(string)
 
 	client.organizationToProfile[client.defaultOrganizationId] = OrganizationProfile{
-		jwt:    jsonResponse["auth"].(map[string]interface{})["jwt_key"].(string),
-		userId: jsonResponse["jwt"].(map[string]interface{})["iam_issuer"].(string),
+		jwt: jsonResponse["token"].(string),
 	}
 
 	return &client, nil
 }
 
 func (client *ScalewayClient) ListOrganizations() (map[string]string, error) {
-	jsonResponse, err := client.sendRequest(ORGANIZATION_API+client.issuer, nil, client.getOrCreateOrganizationProfile(client.defaultOrganizationId).jwt, "GET")
+	jsonResponse, err := client.sendRequest(IAM_USERS_API+client.issuer, nil, client.getOrCreateOrganizationProfile(client.defaultOrganizationId).jwt, "GET")
 	if err != nil {
 		return nil, err
 	}
+	accountRootUserId := jsonResponse["account_root_user_id"].(string)
 
+	jsonResponse, err = client.sendRequest(ACCOUNT_USERS_API+accountRootUserId, nil, client.getOrCreateOrganizationProfile(client.defaultOrganizationId).jwt, "GET")
+	if err != nil {
+		return nil, err
+	}
 	orgs := jsonResponse["organizations"].([]interface{})
 	result := make(map[string]string)
 	for _, org := range orgs {
