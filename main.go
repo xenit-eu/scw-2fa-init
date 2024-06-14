@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"sort"
 	"strconv"
 	"syscall"
 	"time"
@@ -57,25 +58,28 @@ func main() {
 	}
 
 	if *chosenOrgName == "" {
-		fmt.Println("Available organizations: ")
-		i := 1
+		orgNames := make([]string, 0, len(orgs))
 		for name := range orgs {
-			fmt.Println(i, ".", name)
-			i++
+			orgNames = append(orgNames, name)
+		}
+
+		sort.Strings(orgNames) // Optional: sort for consistent ordering
+
+		fmt.Println("Available organizations: ")
+		for i, name := range orgNames {
+			fmt.Println(i+1, ".", name)
 		}
 
 		fmt.Print("Choose an organization by entering the corresponding number: ")
 		scanner.Scan()
 		chosenNumber, _ := strconv.Atoi(scanner.Text())
 
-		i = 1
-		for name := range orgs {
-			if i == chosenNumber {
-				*chosenOrgName = name
-				break
-			}
-			i++
+		if chosenNumber < 1 || chosenNumber > len(orgNames) {
+			fmt.Println("Invalid selection.")
+			return
 		}
+
+		*chosenOrgName = orgNames[chosenNumber-1]
 	}
 
 	if *chosenDuration == 0 {
