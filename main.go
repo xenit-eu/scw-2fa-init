@@ -106,10 +106,22 @@ func main() {
 	}
 }
 
-const SCW_INIT_COMMAND = "scw config destroy && scw init secret-key=%s access-key=%s organization-id=%s send-telemetry=false install-autocomplete=true"
+const SCW_DESTROY_COMMAND = "scw config destroy"
+const SCW_INIT_COMMAND = "scw init secret-key=%s access-key=%s organization-id=%s send-telemetry=false install-autocomplete=true"
 
 func scalewayInit(apiKey *ApiKey, organizationId string) {
 	command := fmt.Sprintf(SCW_INIT_COMMAND, apiKey.SecretKey, apiKey.AccessKey, organizationId)
+
+	executeCmd(SCW_DESTROY_COMMAND)
+	err := executeCmd(command)
+	if err != nil {
+		fmt.Println("Command execution failed", err)
+	} else {
+		fmt.Println("Command executed successfully")
+	}
+}
+
+func executeCmd(command string) error {
 	var cmd *exec.Cmd
 	if runtime.GOOS == "windows" {
 		cmd = exec.Command("cmd.exe", "/c", command)
@@ -120,9 +132,5 @@ func scalewayInit(apiKey *ApiKey, organizationId string) {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-	if err := cmd.Run(); err != nil {
-		fmt.Println("Command execution failed", err)
-	} else {
-		fmt.Println("Command executed successfully")
-	}
+	return cmd.Run()
 }
