@@ -41,7 +41,7 @@ func main() {
 	password := string(bytePassword)
 	fmt.Println()
 
-	fmt.Print("Enter token: ")
+	fmt.Print("Enter 2FA token: ")
 	scanner.Scan()
 	token := scanner.Text()
 
